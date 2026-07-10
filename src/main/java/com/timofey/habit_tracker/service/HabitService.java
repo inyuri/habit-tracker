@@ -5,6 +5,8 @@ import com.timofey.habit_tracker.dto.HabitResponse;
 import com.timofey.habit_tracker.exception.HabitNotFoundException;
 import com.timofey.habit_tracker.model.Habit;
 import com.timofey.habit_tracker.repository.HabitRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -12,14 +14,12 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class HabitService {
 
     private final HabitRepository habitRepository;
 
-    public HabitService(HabitRepository habitRepository) {
-        this.habitRepository = habitRepository;
-    }
-
+    @Transactional
     public HabitResponse create(HabitRequest habitRequest) {
         log.info("Creating habit with name={}, description={}, target={}",
                 habitRequest.getName(),
@@ -53,6 +53,7 @@ public class HabitService {
         return toResponse(habit);
     }
 
+    @Transactional
     public HabitResponse update(Long id, HabitRequest habitRequest) {
         log.info("Updating habit by id={}", id);
 
@@ -70,6 +71,7 @@ public class HabitService {
         return toResponse(updatedHabit);
     }
 
+    @Transactional
     public void delete(Long id) {
         log.info("Deleting habit by id={}", id);
 
@@ -83,7 +85,6 @@ public class HabitService {
         return new HabitResponse(habit.getId(),
                                  habit.getName(),
                                  habit.getDescription(),
-                                 habit.getTarget(),
-                                 habit.getCreatedAt());
+                                 habit.getTarget());
     }
 }

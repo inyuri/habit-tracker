@@ -1,14 +1,14 @@
 package com.timofey.habit_tracker.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 import java.time.LocalDate;
 
-@Getter
+@Data
 @AllArgsConstructor
-public class RecordResponse {
-    private Long habitId;
+public class DayStatsResponse {
     private LocalDate date;
-    private boolean completed;
+    private int completedCount;
+    private int totalCount;
 }

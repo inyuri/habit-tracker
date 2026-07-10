@@ -22,16 +22,17 @@ public class RecordController {
     }
 
     @PostMapping("/{id}/records")
-    public ResponseEntity<RecordResponse> execute(@Positive @PathVariable Long id) {
-        log.info("POST /api/habits/{}/records request received", id);
+    public ResponseEntity<RecordResponse> execute(@Positive @PathVariable Long id,
+                                                  @RequestParam boolean completed) {
+        log.info("POST /api/habits/{}/records", id);
 
-        RecordResponse recordResponse = recordService.execute(id);
+        RecordResponse recordResponse = recordService.execute(id, completed);
         return ResponseEntity.status(HttpStatus.CREATED).body(recordResponse);
     }
 
     @GetMapping("/{id}/records")
     public ResponseEntity<List<RecordResponse>> getAll(@Positive @PathVariable Long id) {
-        log.info("GET /api/habits/{}/records request received", id);
+        log.info("GET /api/habits/{}/records", id);
 
         return ResponseEntity.ok(recordService.getAll(id));
     }

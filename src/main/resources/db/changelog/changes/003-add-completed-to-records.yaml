@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-add-completed-to-records
+      author: timofey
+      changes:
+        - addColumn:
+            tableName: records
+            columns:
+              - column:
+                  name: completed
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false

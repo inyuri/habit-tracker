@@ -11,23 +11,26 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class HabitTrackerApplicationTests {
+class HabitServiceTest {
     @Autowired
     private HabitService habitService;
 
-    @Test
-    public void shouldCreateHabit() {
-        HabitRequest habitRequest = new HabitRequest(
+    private HabitRequest createHabitRequest() {
+        return new HabitRequest(
                 "Пить воду",
                 "Пить 2л воды каждый день",
                 10
         );
+    }
+
+    @Test
+    public void shouldCreateHabit() {
+        HabitRequest habitRequest = createHabitRequest();
 
         HabitResponse createdHabitResponse = habitService.create(habitRequest);
 
         assertNotNull(createdHabitResponse);
         assertNotNull(createdHabitResponse.getId());
-        assertNotNull(createdHabitResponse.getCreatedAt());
 
         assertEquals("Пить воду", createdHabitResponse.getName());
         assertEquals("Пить 2л воды каждый день", createdHabitResponse.getDescription());
@@ -36,11 +39,7 @@ class HabitTrackerApplicationTests {
 
     @Test
     public void shouldFoundHabitById() {
-        HabitRequest habitRequest = new HabitRequest(
-                "Пить воду",
-                "Пить 2л воды каждый день",
-                10
-        );
+        HabitRequest habitRequest = createHabitRequest();
 
         HabitResponse createdHabitResponse = habitService.create(habitRequest);
         HabitResponse savedHabitResponse = habitService.getById(createdHabitResponse.getId());
@@ -58,8 +57,6 @@ class HabitTrackerApplicationTests {
     void shouldThrowHabitNotFoundException() {
         Long nonExistingId = 999999L;
 
-        assertThrows(HabitNotFoundException.class, () -> {
-            habitService.getById(nonExistingId);
-        });
+        assertThrows(HabitNotFoundException.class, () -> habitService.getById(nonExistingId));
     }
 }

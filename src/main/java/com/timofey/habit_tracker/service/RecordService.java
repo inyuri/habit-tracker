@@ -6,6 +6,8 @@ import com.timofey.habit_tracker.model.Habit;
 import com.timofey.habit_tracker.model.Record;
 import com.timofey.habit_tracker.repository.HabitRepository;
 import com.timofey.habit_tracker.repository.RecordRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -14,21 +16,18 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class RecordService {
 
     private final RecordRepository recordRepository;
     private final HabitRepository habitRepository;
 
-    public RecordService(RecordRepository recordRepository, HabitRepository habitRepository) {
-        this.recordRepository = recordRepository;
-        this.habitRepository = habitRepository;
-    }
-
-    public RecordResponse execute(Long habitId) {
+    @Transactional
+    public RecordResponse execute(Long habitId, boolean completed) {
         log.info("Creating new record by habit with habitId={}", habitId);
 
         Habit habit = habitRepository.findById(habitId).orElseThrow(() -> new HabitNotFoundException(""));
-        Record record = new Record(habit, LocalDate.now());
+        Record record = new Record(habit, LocalDate.now(), completed);
         Record savedRecord = recordRepository.save(record);
 
         log.info("Record created successfully with id={}", savedRecord.getId());
@@ -43,6 +42,6 @@ public class RecordService {
     }
 
     private RecordResponse toResponse(Record record) {
-        return new RecordResponse(record.getHabit().getId(), record.getDate());
+        return new RecordResponse(record.getHabit().getId(), record.getDate(), record.isCompleted());
     }
 }

@@ -2,6 +2,7 @@ package com.timofey.habit_tracker.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 @Table(name = "records")
 @Setter
 @Getter
+@NoArgsConstructor
 public class Record {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,13 +22,11 @@ public class Record {
     private Habit habit;
 
     private LocalDate date;
+    private boolean completed;
 
-    public Record() {
-
-    }
-
-    public Record(Habit habit, LocalDate date) {
+    public Record(Habit habit, LocalDate date, boolean completed) {
         this.habit = habit;
         this.date = date;
+        this.completed = completed;
     }
 }
