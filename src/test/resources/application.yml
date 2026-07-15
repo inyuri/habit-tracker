@@ -7,3 +7,7 @@ spring:
       ddl-auto: create-drop
   liquibase:
     enabled: false
+
+jwt:
+  secret: ${JWT_SECRET:default-secret-for-local-dev-only}
+  expiration: 86400000

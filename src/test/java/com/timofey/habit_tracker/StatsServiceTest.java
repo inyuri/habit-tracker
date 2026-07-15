@@ -2,6 +2,7 @@ package com.timofey.habit_tracker;
 
 import com.timofey.habit_tracker.model.Habit;
 import com.timofey.habit_tracker.model.Record;
+import com.timofey.habit_tracker.model.User;
 import com.timofey.habit_tracker.repository.HabitRepository;
 import com.timofey.habit_tracker.repository.RecordRepository;
 import com.timofey.habit_tracker.service.StatsService;
@@ -30,7 +31,8 @@ public class StatsServiceTest {
         Habit habit = new Habit(
                 "Пить воду",
                 "Пить 2л воды каждый день",
-                10
+                10,
+                new User("Anton", "123232", "anton@gmail.com")
         );
 
         return habitRepository.save(habit);

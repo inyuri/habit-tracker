@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class HabitServiceTest {
+
     @Autowired
     private HabitService habitService;
 

@@ -1,10 +1,7 @@
 package com.timofey.habit_tracker.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -13,8 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "habits")
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 public class Habit {
 
@@ -32,9 +28,14 @@ public class Habit {
     @OneToMany(mappedBy = "habit", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Record> records = new ArrayList<>();
 
-    public Habit(String name, String description, int target) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Habit(String name, String description, int target, User user) {
         this.name = name;
         this.description = description;
         this.target = target;
+        this.user = user;
     }
 }

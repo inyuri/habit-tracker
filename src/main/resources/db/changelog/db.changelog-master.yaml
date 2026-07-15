@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/changes/002-create-records-table.yaml
   - include:
       file: db/changelog/changes/003-add-completed-to-records.yaml
+  - include:
+      file: db/changelog/changes/004-create-users-table.yaml

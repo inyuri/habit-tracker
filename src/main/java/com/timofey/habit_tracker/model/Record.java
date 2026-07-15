@@ -1,16 +1,13 @@
 package com.timofey.habit_tracker.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "records")
-@Setter
-@Getter
+@Data
 @NoArgsConstructor
 public class Record {
     @Id
