@@ -1,10 +1,9 @@
-package com.timofey.habit_tracker;
+package com.timofey.habit_tracker.service;
 
 import com.timofey.habit_tracker.dto.*;
 import com.timofey.habit_tracker.model.User;
 import com.timofey.habit_tracker.repository.HabitRepository;
 import com.timofey.habit_tracker.repository.UserRepository;
-import com.timofey.habit_tracker.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
-public class AuthServiceTest {
+public class UserServiceTest {
 
     @Autowired
     private UserService userService;

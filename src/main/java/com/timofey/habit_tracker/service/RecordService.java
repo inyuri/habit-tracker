@@ -2,6 +2,7 @@ package com.timofey.habit_tracker.service;
 
 import com.timofey.habit_tracker.dto.RecordResponse;
 import com.timofey.habit_tracker.exception.HabitNotFoundException;
+import com.timofey.habit_tracker.mapper.RecordMapper;
 import com.timofey.habit_tracker.model.Habit;
 import com.timofey.habit_tracker.model.Record;
 import com.timofey.habit_tracker.repository.HabitRepository;
@@ -21,6 +22,7 @@ public class RecordService {
 
     private final RecordRepository recordRepository;
     private final HabitRepository habitRepository;
+    private final RecordMapper recordMapper;
 
     @Transactional
     public RecordResponse execute(Long habitId, boolean completed) {
@@ -32,16 +34,12 @@ public class RecordService {
 
         log.info("Record created successfully with id={}", savedRecord.getId());
 
-        return toResponse(savedRecord);
+        return recordMapper.toResponse(savedRecord);
     }
 
     public List<RecordResponse> getAll(Long habitId) {
         log.info("Getting all records by habitId={}", habitId);
 
-        return recordRepository.findByHabitId(habitId).stream().map(this::toResponse).toList();
-    }
-
-    private RecordResponse toResponse(Record record) {
-        return new RecordResponse(record.getHabit().getId(), record.getDate(), record.isCompleted());
+        return recordRepository.findByHabitId(habitId).stream().map(recordMapper::toResponse).toList();
     }
 }

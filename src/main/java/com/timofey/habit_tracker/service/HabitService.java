@@ -3,6 +3,7 @@ package com.timofey.habit_tracker.service;
 import com.timofey.habit_tracker.dto.HabitRequest;
 import com.timofey.habit_tracker.dto.HabitResponse;
 import com.timofey.habit_tracker.exception.HabitNotFoundException;
+import com.timofey.habit_tracker.mapper.HabitMapper;
 import com.timofey.habit_tracker.model.Habit;
 import com.timofey.habit_tracker.model.User;
 import com.timofey.habit_tracker.repository.HabitRepository;
@@ -23,6 +24,7 @@ public class HabitService {
 
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
+    private final HabitMapper habitMapper;
 
     @Transactional
     public HabitResponse create(HabitRequest habitRequest) {
@@ -43,7 +45,7 @@ public class HabitService {
 
         log.info("Habit created successfully with id={}", savedHabit.getId());
 
-        return toResponse(savedHabit);
+        return habitMapper.toResponse(savedHabit);
     }
 
     public List<HabitResponse> getAll() {
@@ -53,7 +55,7 @@ public class HabitService {
 
         return habitRepository.findAllByUserId(user.getId())
                               .stream()
-                              .map(this::toResponse)
+                              .map(habitMapper::toResponse)
                               .toList();
     }
 
@@ -64,7 +66,8 @@ public class HabitService {
 
         Habit habit = habitRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new HabitNotFoundException(""));
-        return toResponse(habit);
+
+        return habitMapper.toResponse(habit);
     }
 
     @Transactional
@@ -85,7 +88,7 @@ public class HabitService {
         log.info("Habit updated successfully by habit with name={}, description={}, target={}",
                 habitRequest.getName(), habitRequest.getDescription(), habitRequest.getTarget());
 
-        return toResponse(updatedHabit);
+        return habitMapper.toResponse(updatedHabit);
     }
 
     @Transactional
@@ -99,13 +102,6 @@ public class HabitService {
         habitRepository.delete(habit);
 
         log.info("Habit by id={} successfully deleted", id);
-    }
-
-    private HabitResponse toResponse(Habit habit) {
-        return new HabitResponse(habit.getId(),
-                                 habit.getName(),
-                                 habit.getDescription(),
-                                 habit.getTarget());
     }
 
     private User getCurrentUser() {
