@@ -129,9 +129,11 @@ public class StatsService {
     public DailyStatsResponse getDailyStatsResponse() {
         User user = currentUserService.getCurrentUser();
 
-        List<RecordResponse> dailyRecords = recordRepository.findByHabitUserId(user.getId())
+        LocalDate today = LocalDate.now();
+
+        List<RecordResponse> dailyRecords = recordRepository
+                .findDailyRecordsByUserId(user.getId(), today)
                 .stream()
-                .filter(record -> record.getDate().equals(LocalDate.now()))
                 .map(record -> new RecordResponse(
                         record.getHabit().getId(),
                         record.getDate(),
@@ -139,14 +141,10 @@ public class StatsService {
                 ))
                 .toList();
 
-        DailyStatsResponse dailyStatsResponse;
-
-        dailyStatsResponse = new DailyStatsResponse(
-                LocalDate.now(),
+        return new DailyStatsResponse(
+                today,
                 dailyRecords
         );
-
-        return dailyStatsResponse;
     }
 
     @Transactional(readOnly = true)
