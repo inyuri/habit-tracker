@@ -10,7 +10,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "habits")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Habit {
 

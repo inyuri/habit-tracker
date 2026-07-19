@@ -2,12 +2,14 @@ package com.timofey.habit_tracker.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class User {
     @Id

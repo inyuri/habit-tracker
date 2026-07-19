@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 003-add-completed-to-records
+      id: 004-add-completed-to-records
       author: timofey
       changes:
         - addColumn:

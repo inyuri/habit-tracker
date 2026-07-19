@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-add-record-unique-constraint
+      author: timofey
+
+      changes:
+        - addUniqueConstraint:
+            tableName: records
+            columnNames: habit_id, date
+            constraintName: uk_record_habit_date

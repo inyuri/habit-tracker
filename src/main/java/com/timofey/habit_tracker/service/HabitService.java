@@ -7,12 +7,9 @@ import com.timofey.habit_tracker.mapper.HabitMapper;
 import com.timofey.habit_tracker.model.Habit;
 import com.timofey.habit_tracker.model.User;
 import com.timofey.habit_tracker.repository.HabitRepository;
-import com.timofey.habit_tracker.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,12 +20,12 @@ import java.util.List;
 public class HabitService {
 
     private final HabitRepository habitRepository;
-    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
     private final HabitMapper habitMapper;
 
     @Transactional
     public HabitResponse create(HabitRequest habitRequest) {
-        User user = getCurrentUser();
+        User user = currentUserService.getCurrentUser();
 
         log.info("Creating habit with name={}, description={}, target={} for user={}",
                 habitRequest.getName(),
@@ -48,8 +45,9 @@ public class HabitService {
         return habitMapper.toResponse(savedHabit);
     }
 
+    @Transactional(readOnly = true)
     public List<HabitResponse> getAll() {
-        User user = getCurrentUser();
+        User user = currentUserService.getCurrentUser();
 
         log.info("Receive all habits");
 
@@ -59,25 +57,26 @@ public class HabitService {
                               .toList();
     }
 
+    @Transactional(readOnly = true)
     public HabitResponse getById(Long id) {
-        User user = getCurrentUser();
+        User user = currentUserService.getCurrentUser();
 
         log.info("Searching habit by id={}", id);
 
         Habit habit = habitRepository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(() -> new HabitNotFoundException(""));
+                .orElseThrow(() -> new HabitNotFoundException("Habit not found"));
 
         return habitMapper.toResponse(habit);
     }
 
     @Transactional
     public HabitResponse update(Long id, HabitRequest habitRequest) {
-        User user = getCurrentUser();
+        User user = currentUserService.getCurrentUser();
 
         log.info("Updating habit by id={}", id);
 
         Habit habit = habitRepository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(() -> new HabitNotFoundException(""));
+                .orElseThrow(() -> new HabitNotFoundException("Habit not found"));
 
         habit.setName(habitRequest.getName());
         habit.setDescription(habitRequest.getDescription());
@@ -93,7 +92,7 @@ public class HabitService {
 
     @Transactional
     public void delete(Long id) {
-        User user = getCurrentUser();
+        User user = currentUserService.getCurrentUser();
 
         log.info("Deleting habit by id={}", id);
 
@@ -102,13 +101,5 @@ public class HabitService {
         habitRepository.delete(habit);
 
         log.info("Habit by id={} successfully deleted", id);
-    }
-
-    private User getCurrentUser() {
-        String username = SecurityContextHolder.getContext()
-                .getAuthentication().getName();
-
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
     }
 }

@@ -9,5 +9,7 @@ import java.util.List;
 
 @Repository
 public interface RecordRepository extends JpaRepository<Record, Long> {
-    List<Record> findByHabitId(Long habitId);
+    List<Record> findByHabitIdAndHabitUserId(Long habitId, Long userId);
+    List<Record> findByHabitUserId(Long userId);
+    boolean existsByHabitIdAndDate(Long habitId, LocalDate date);
 }

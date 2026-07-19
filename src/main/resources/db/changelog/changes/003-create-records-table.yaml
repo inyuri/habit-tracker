@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 002-create-records-table
+      id: 003-create-records-table
       author: timofey
       changes:
         - createTable:

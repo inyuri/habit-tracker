@@ -3,6 +3,7 @@ package com.timofey.habit_tracker.service;
 import com.timofey.habit_tracker.dto.*;
 import com.timofey.habit_tracker.exception.HabitNotFoundException;
 import com.timofey.habit_tracker.model.Habit;
+import com.timofey.habit_tracker.model.User;
 import com.timofey.habit_tracker.repository.HabitRepository;
 import com.timofey.habit_tracker.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.timofey.habit_tracker.model.Record;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -24,18 +26,19 @@ public class StatsService {
 
     private final RecordRepository recordRepository;
     private final HabitRepository habitRepository;
+    private final CurrentUserService currentUserService;
 
-    public int getCurrentStreak(Long habitId) {
+    public int getCurrentStreak(List<Record> records) {
         int count = 0;
         LocalDate current = LocalDate.now();
 
-        List<Record> records = recordRepository.findByHabitId(habitId)
+        List<Record> completedRecords = records
                 .stream()
                 .sorted(Comparator.comparing(Record::getDate).reversed())
                 .filter(Record::isCompleted)
                 .toList();
 
-        for (Record record : records) {
+        for (Record record : completedRecords) {
             if (record.getDate().equals(current)) {
                 count++;
                 current = current.minusDays(1);
@@ -48,8 +51,8 @@ public class StatsService {
         return count;
     }
 
-    public int getBestStreak(Long habitId) {
-        List<Record> records = recordRepository.findByHabitId(habitId)
+    public int getBestStreak(List<Record> records) {
+        List<Record> completedRecords = records
                 .stream()
                 .sorted(Comparator.comparing(Record::getDate))
                 .filter(Record::isCompleted)
@@ -59,7 +62,7 @@ public class StatsService {
         int bestStreak = 0;
         LocalDate prevDate = null;
 
-        for (Record record : records) {
+        for (Record record : completedRecords) {
             LocalDate date = record.getDate();
 
             if (prevDate == null) {
@@ -79,45 +82,54 @@ public class StatsService {
         return bestStreak;
     }
 
-    public double getCompletionRate(Long habitId) {
-        long totalDays = getTotalCompletions(habitId);
+    public double getCompletionRate(List<Record> records, Habit habit) {
+        long totalDays = ChronoUnit.DAYS.between(
+                habit.getCreatedAt().toLocalDate(),
+                LocalDate.now()
+        );
 
-        List<Record> records = recordRepository.findByHabitId(habitId);
         long completedDays = records.stream()
                 .filter(Record::isCompleted)
                 .map(Record::getDate)
                 .distinct()
                 .count();
 
+        if (totalDays <= 0) {
+            return 0.0;
+        }
+
         return ((double) completedDays / totalDays) * 100.0;
     }
 
-    private long getTotalCompletions(Long habitId) {
-        Habit habit = habitRepository.findById(habitId)
-                .orElseThrow(() -> new HabitNotFoundException("Habit not found"));
-
-        LocalDate createdAt = habit.getCreatedAt().toLocalDate();
-
-        return ChronoUnit.DAYS.between(createdAt, LocalDate.now());
-    }
-
+    @Transactional(readOnly = true)
     public StatsResponse getStatsResponse(Long habitId) {
         log.info("Searching stats for habit with id={}", habitId);
 
-        StatsResponse statsResponse;
+        User user = currentUserService.getCurrentUser();
 
-        statsResponse = new StatsResponse(
-                getCurrentStreak(habitId),
-                getBestStreak(habitId),
-                getCompletionRate(habitId),
-                (int) getTotalCompletions(habitId)
+        Habit habit = habitRepository
+                .findByIdAndUserId(habitId, user.getId())
+                .orElseThrow(() -> new HabitNotFoundException("Habit not found"));
+
+        List<Record> records = recordRepository
+                .findByHabitIdAndHabitUserId(habitId, user.getId());
+
+        return new StatsResponse(
+                getCurrentStreak(records),
+                getBestStreak(records),
+                getCompletionRate(records, habit),
+                (int) ChronoUnit.DAYS.between(
+                        habit.getCreatedAt().toLocalDate(),
+                        LocalDate.now()
+                )
         );
-
-        return statsResponse;
     }
 
+    @Transactional(readOnly = true)
     public DailyStatsResponse getDailyStatsResponse() {
-        List<RecordResponse> dailyRecords = recordRepository.findAll()
+        User user = currentUserService.getCurrentUser();
+
+        List<RecordResponse> dailyRecords = recordRepository.findByHabitUserId(user.getId())
                 .stream()
                 .filter(record -> record.getDate().equals(LocalDate.now()))
                 .map(record -> new RecordResponse(
@@ -137,8 +149,11 @@ public class StatsService {
         return dailyStatsResponse;
     }
 
+    @Transactional(readOnly = true)
     public WeekStatsResponse getWeekStatsResponse() {
-        List<Record> allRecords = recordRepository.findAll();
+        User user = currentUserService.getCurrentUser();
+
+        List<Record> allRecords = recordRepository.findByHabitUserId(user.getId());
 
         List<DayStatsResponse> dayStatsResponses = new ArrayList<>();
 
